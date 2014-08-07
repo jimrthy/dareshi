@@ -7,13 +7,7 @@
    [clojure.string :as str]
    [clojure.tools.reader.reader-types :refer (indexing-push-back-reader)]
    [com.stuartsierra.component :as component :refer (system-map system-using)]
-   ;; Q: How am I supposed to use this?
-   [modular.datomic :refer (new-datomic-database-schema
-                            new-datomic-database
-                            new-datomic-connection
-                            new-datomic-schema
-                            new-datomic-functions)]
-   [modular.maker :refer (make)]))
+   [dareshi.persistence :refer (new-persistence)]))
 
 (defn ^:private read-file
   [f]
@@ -47,11 +41,16 @@
          (user-config)))
 
 (defn new-base-system-map
+  "Builds the system map"
   [config systemref]
-  (system-map))
+  (let [{:keys []} config]
+    (system-map
+     :database-connection-description (new-connection-description config)
+     :database (new-persistence config))))
 
 (defn new-base-dependency-map [system-map]
-  {})
+  "Which components rely on which others?"
+  {:database [:database-connection-description]})
 
 (defn new-production-system
   "Create the production system"
