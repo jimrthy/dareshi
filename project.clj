@@ -5,6 +5,7 @@ experiment."
   :dependencies [[com.datomic/datomic-free "0.9.4815.12"]
                  [com.stuartsierra/component "0.2.1"]
                  [com.taoensso/timbre "3.2.1"]  ;  :exclusions [org.clojure/tools.reader]
+                 [datomic-schema-grapher "0.0.1"]
                  [im.chit/ribol "0.3.3"]
                  [org.apache.shiro/shiro-core "1.2.3"]
                  [org.clojure/clojure "1.6.0"]

@@ -13,7 +13,7 @@
   component/Lifecycle)
 
 (defn new-connection-description
-  [{:keys database-protocol database-address database-port database-collection}]
+  [{:keys [database-protocol database-address database-port database-collection]}]
   (map->DatabaseConnectionDescription {:protocol database-protocol
                                        :address database-address
                                        :port database-port
@@ -23,16 +23,14 @@
   [{:keys [protocol address port collection]}]
   (str "datomic:" protocol "://" address ":" port "/" collection))
 
-(defrecord Database []
+(defrecord Database [database uri]
   component/Lifecycle
 
-  (start [{:keys [database-connection-descriptoin] :as component}]
-    (log.trace "Starting Database")
+  (start [this]
+    (log/trace "Starting Database")
     ;; Q: Is getting a connection an expensive thing?
-    (let [uri (build-uri database-connection-description)
-          conn d/connect uri]
-      (raise :finish-this)))
+    (assoc this :database (d/connect uri)))
 
-  (stop [component]
-    (raise :not-implemented)))
+  (stop [this]
+    (assoc this :database nil)))
 

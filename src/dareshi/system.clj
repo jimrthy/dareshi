@@ -7,6 +7,7 @@
    [clojure.string :as str]
    [clojure.tools.reader.reader-types :refer (indexing-push-back-reader)]
    [com.stuartsierra.component :as component :refer (system-map system-using)]
+   [dereshi.db.schema :as schema]
    [dareshi.persistence :refer (new-persistence)]))
 
 (defn ^:private read-file
@@ -45,12 +46,14 @@
   [config systemref]
   (let [{:keys []} config]
     (system-map
-     :database-connection-description (new-connection-description config)
-     :database (new-persistence config))))
+     :database-connection-description (db/new-connection-description config)
+     :database (db/new-persistence config)
+     :schema (schema/new-schema config))))
 
 (defn new-base-dependency-map [system-map]
   "Which components rely on which others?"
-  {:database [:database-connection-description]})
+  {:database {:uri :database-connection-description}
+   :schema {:database :database}})
 
 (defn new-production-system
   "Create the production system"

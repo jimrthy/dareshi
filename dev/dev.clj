@@ -6,8 +6,9 @@
             [clojure.string :as s]
             [clojure.tools.namespace.repl :refer (refresh refresh-all)]
             [com.stuartsierra.component :as component]
-            [datomic.api :as d]
             [dareshi.system :as sys :refer (config new-base-system-map new-base-dependency-map)]
+            [datomic.api :as d]
+            [datomic-schema-grapher :refer (graph-datomic)]
             [dev-components :refer (new-user-domain-seeder
                                     wrap-schema-validation)]
             [midje.repl :refer [autotest load-facts]]
@@ -98,3 +99,7 @@
 (defn reset []
   (stop)
   (refresh :after 'dev/go))
+
+(defn show-schema
+  []
+  (graph-datomic (db/build-uri (:database-connection-description system))))
