@@ -7,8 +7,8 @@
    [clojure.string :as str]
    [clojure.tools.reader.reader-types :refer (indexing-push-back-reader)]
    [com.stuartsierra.component :as component :refer (system-map system-using)]
-   [dereshi.db.schema :as schema]
-   [dareshi.persistence :refer (new-persistence)]))
+   [dareshi.db.schema :as schema]
+   [dareshi.persistence :as db]))
 
 (defn ^:private read-file
   [f]
@@ -34,11 +34,19 @@
     (config-from (io/file res))
     {}))
 
+(defn ^:private default-config
+  []
+  {:database-protocol "mem"
+   :database-address "localhost"
+   :database-port 4334
+   :database-collection "auth-auth"})
+
 (defn config
   "Return a map of the static configuration used in the component
   constructors."
   []
-  (merge (config-from-classpath)
+  (merge (default-config)
+         (config-from-classpath)
          (user-config)))
 
 (defn new-base-system-map
@@ -50,8 +58,9 @@
      :database (db/new-persistence config)
      :schema (schema/new-schema config))))
 
-(defn new-base-dependency-map [system-map]
+(defn new-base-dependency-map
   "Which components rely on which others?"
+  [system-map]
   {:database {:uri :database-connection-description}
    :schema {:database :database}})
 

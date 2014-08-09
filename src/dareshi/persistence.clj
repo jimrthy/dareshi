@@ -34,3 +34,6 @@
   (stop [this]
     (assoc this :database nil)))
 
+(defn new-persistence
+  [{:keys [uri]}]
+  (map->Database {:uri uri}))

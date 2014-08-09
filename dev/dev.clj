@@ -6,14 +6,13 @@
             [clojure.string :as s]
             [clojure.tools.namespace.repl :refer (refresh refresh-all)]
             [com.stuartsierra.component :as component]
+            [dareshi.persistence :as db]
             [dareshi.system :as sys :refer (config new-base-system-map new-base-dependency-map)]
             [datomic.api :as d]
-            [datomic-schema-grapher :refer (graph-datomic)]
-            [dev-components :refer (new-user-domain-seeder
-                                    wrap-schema-validation)]
+            [datomic-schema-grapher.core :refer (graph-datomic)]
+            [dev-components :refer (wrap-schema-validation)]
             [midje.repl :refer [autotest load-facts]]
             [midje.sweet :as midje]
-            [modular.wire-up :refer (normalize-dependency-map)]
             [taoensso.timbre :as log]))
 
 (def system nil)
@@ -32,35 +31,49 @@
 (defmethod print-dup SystemWrapper [_ writer]
   (.write writer "#system \"<system>\""))
 
-(. clojure.pprint/simple-dispatch addMethod SystemWrapper
+(.addMethod clojure.pprint/simple-dispatch SystemWrapper
    (fn [x]
      (print-method x *out*)))
 
 (defn new-system-wrapper []
   (->SystemWrapper (promise)))
 
+(defn ensure-map
+  "Turn vector style into map style, if necessary.
+  For example: [:a :b :c] -> {:a :a, :b :b, :c :c}
+  Shamelessly copied from juxt's modular.wire-up (MIT license)"
+  [x]
+  (if (sequential? x)
+    (apply zipmap (repeat 2 x))
+    x))
+
+(defn normalize-dependency-map
+  "component/using and system/using accept vectors as well as maps. This
+  makes it difficult to process (merge, extract, etc.) dependency
+  trees. Use this function to normalise so that only the map form is
+  used.
+  Shamelessly copied from juxt's modular.wire-up (MIT license)"
+  [m]
+  (reduce-kv
+   (fn [s k v]
+     (assoc s k (ensure-map v)))
+   {} m))
+
 (defn new-dev-system
-  "Create a development system"
+  "Create a development system
+Q: Do I really want to do this?"
   []
   (let [systemref (new-system-wrapper)
-        s-map (->
-               (new-base-system-map (config) systemref)
-               (assoc
-                 :user-domain-seeder
-                 (component/using
-                  (new-user-domain-seeder :users [{:id "dev" :password "kvC2yTB"}])
-                  {:cylon/user-domain :cylon/user-domain})
-                 :wrap-schema-validation wrap-schema-validation))
+        s-map (assoc (new-base-system-map (config) systemref)
+                :wrap-schema-validation wrap-schema-validation)
+        ;; The next form causes a linter warning, since it isn't
+        ;; doing anything.
+        ;; I'm pretty sure the original intent was to merge
+        ;; the base-dependency map into one that's suitable for
+        ;; the REPL
         d-map (merge-with merge
                           (normalize-dependency-map
-                           (new-base-dependency-map s-map))
-                          (normalize-dependency-map
-                           {
-                            ;; Here is an example of how to extend the
-                            ;; middleware chain using the webhead
-                            ;; component. We wire in a dependency on a
-                            ;; 1-arity middleware function.
-                            :webhead [:wrap-schema-validation]}))]
+                           (new-base-dependency-map s-map)))]
     (with-meta
       (component/system-using s-map d-map)
       {:dependencies d-map
@@ -93,8 +106,7 @@
   []
   (init)
   (start)
-  :ok
-  )
+  :ok)
 
 (defn reset []
   (stop)

@@ -2,7 +2,7 @@
   :description "I need to stash things like users, roles, and passwords in a database.
 Since I'm trying to use datomic for everything else, this seemed like a reasonable
 experiment."
-  :dependencies [[com.datomic/datomic-free "0.9.4815.12"]
+  :dependencies [[com.datomic/datomic-free "0.9.4815.12" :exclusions [org.slf4j/slf4j-api]]
                  [com.stuartsierra/component "0.2.1"]
                  [com.taoensso/timbre "3.2.1"]  ;  :exclusions [org.clojure/tools.reader]
                  [datomic-schema-grapher "0.0.1"]
@@ -14,7 +14,7 @@ experiment."
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :main ^:skip-aot dareshi.main
-  :profiles {:dev {:dependencies [[midje "1.6.3"]
+  :profiles {:dev {:dependencies [[midje "1.6.3" :exclusions [joda-time]]
                                   [org.clojure/tools.namespace "0.2.4"]
                                   [org.clojure/java.classpath "0.2.2"]]
                    :source-paths ["dev"]}

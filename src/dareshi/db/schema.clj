@@ -1,6 +1,7 @@
 (ns dareshi.db.schema
   (:require [com.stuartsierra.component :as component]
             [datomic.api :as d]
+            [datomic-helpers :as d-h]
             [ribol.core :refer (raise)]
             [taoensso.timbre :as log]))
 
@@ -16,7 +17,8 @@
 ;;;; But it is convenient for dev time.
 
 
-(def ^private template-placeholder-meaningless
+;;; What a "real" transaction looks like
+(def ^:private template-placeholder-meaningless
   {:db/id (d/tempid :db.part/db)
    :db/ident :what-is-this
    :db/valueType :db.type/int
@@ -28,7 +30,11 @@
 (defn principals
   "Return a map that describes a transaction for generating subject schema"
   []
-  {})
+  (d-h/to-schema-transaction
+   {:subject/login-name :db.type/string
+    ;; It's tempting to make the password and salt strings instead
+    :subject/password :db.type/bytes
+    :subject/password-salt :db.type/bytes}))
 
 
 (defn build-schema

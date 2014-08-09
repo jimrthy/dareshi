@@ -17,7 +17,7 @@
 (defmethod print-dup SystemWrapper [_ writer]
   (.write writer "#system \"<system>\""))
 
-(. clojure.pprint/simple-dispatch addMethod SystemWrapper
+(.addMethod clojure.pprint/simple-dispatch SystemWrapper
    (fn [x]
      (print-method x *out*)))
 
