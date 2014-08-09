@@ -31,10 +31,16 @@
   "Return a map that describes a transaction for generating subject schema"
   []
   (d-h/to-schema-transaction
-   {:subject/login-name :db.type/string
-    ;; It's tempting to make the password and salt strings instead
-    :subject/password :db.type/bytes
-    :subject/password-salt :db.type/bytes}))
+   {:principal/login-name :db.type/string
+    ;; This is actually a ModularCryptFormat string that has the Salt
+    ;; and any other useful data embedded
+    :principal/password :db.type/string
+    :principal/id :db.type/uuid
+    ;; Q: Are these really part of principals?
+    ;; It seems like they'd make more sense as part of the subject
+    ;; identified by a given set of principals
+    :principal/role-name [:db.type/string]
+    :principal/permission [:db.type/string]}))
 
 
 (defn build-schema

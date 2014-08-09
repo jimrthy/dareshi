@@ -37,3 +37,36 @@
 (defn new-persistence
   [{:keys [uri]}]
   (map->Database {:uri uri}))
+
+
+;;; Actual work
+
+(defn build-principal-by-login-query
+  []
+  '{:find [?credentials ?login-name ?password]
+    :in [$ ?login-name]
+    :where [[?credentials :principal/login-name ?login-name]
+            [?credentials :principal/password ?password]]})
+
+(defn query-principal-by-login-name
+  [database login-name]
+  (map #((zipmap [:entity :login-name :password]
+                 %))
+       (d/q (build-principal-by-login-query) database login-name)))
+
+;; TODO: Start by testing this
+(defn build-authorization-by-principal-query
+  []
+  '{:find [?principal ?role ?permission]
+    :in [$ [?id ...]]
+    :where [[?principal :principal/id ?id]
+            [?principal :principal/role-name ?role]
+            [?role :principal/permission ?permission]]})
+
+(defn query-authorizations-by-principals
+  [db principal-ids]
+  (reduce (fn [acc [_ role permission]]
+            (assoc acc :roles role, :permissions permission))
+          {:roles #{}, :permissions #{}}
+          (d/q (build-authorization-by-principal-query)
+               db principal-ids)))
