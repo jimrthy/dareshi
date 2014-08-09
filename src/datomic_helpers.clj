@@ -3,7 +3,7 @@
 ;;;; See LICENSE for details.
 
 (ns datomic-helpers
-  (:use clojure.test))
+  (:require [clojure.test :refer (is with-test)]))
 
 (declare tempid)
 
