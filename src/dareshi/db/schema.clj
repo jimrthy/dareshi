@@ -62,7 +62,7 @@ evolve. Everything below probably counts as boiler plate."
   component/Lifecycle
 
   (start [this]
-    (initialize-schema database)
+    (initialize-schema (:database database))
     this))
 
 (defn new-schema

@@ -10,7 +10,9 @@
 ;;; "normal" local database (or web service?) for the actual
 ;;; values to use.
 (defrecord DatabaseConnectionDescription [protocol address port collection]
-  component/Lifecycle)
+  component/Lifecycle
+  (start [this] this)
+  (stop [this] this))
 
 (defn new-connection-description
   [{:keys [database-protocol database-address database-port database-collection]}]
@@ -27,9 +29,16 @@
   component/Lifecycle
 
   (start [this]
-    (log/trace "Starting Database")
-    ;; Q: Is getting a connection an expensive thing?
-    (assoc this :database (d/connect uri)))
+    (let [real-url (build-uri uri)]
+      ;; TODO: This should happen at build/install time.
+      ;; The transactor should be running separately.
+      ;; In-memory database is really for dev only
+      ;; But I have to start somewhere.
+      (log/warn "FIXME: DEBUG ONLY -- Creating Database at " real-url)
+      (d/create-database real-url)
+      (log/trace "Starting Database at " real-url)
+      ;; Q: Is getting a connection an expensive thing?
+      (assoc this :database (d/connect real-url))))
 
   (stop [this]
     (assoc this :database nil)))
