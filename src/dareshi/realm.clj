@@ -52,8 +52,10 @@
 (defrecord Realm [database auther]
   component/Lifecycle
 
-  (start [component]
-    (assoc component :auther (auth-proxy database))))
+  (start [this]
+    (assoc this :auther (auth-proxy database)))
+  (stop [this]
+    this))
 
 (defn new-realm
   [{:keys [database]}]

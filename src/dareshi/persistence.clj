@@ -41,6 +41,9 @@
       (assoc this :database (d/connect real-url))))
 
   (stop [this]
+    (let [real-url (build-uri uri)]
+      (log/warn "FIXME: DEBUG ONLY -- Destroying Database at " real-url)
+      (d/delete-database uri))
     (assoc this :database nil)))
 
 (defn new-persistence

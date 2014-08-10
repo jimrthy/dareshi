@@ -63,6 +63,8 @@ evolve. Everything below probably counts as boiler plate."
 
   (start [this]
     (initialize-schema (:database database))
+    this)
+  (stop [this]
     this))
 
 (defn new-schema
