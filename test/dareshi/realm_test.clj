@@ -10,9 +10,13 @@
                                                                                   :address "localhost"
                                                                                   :collection "test-auth"
                                                                                   :port 4335}}))]
-            (println "Checking realm against " (with-out-str (pprint @system)))
             (with-state-changes [(before :facts (swap! system component/start))
                                  (after :facts (swap! system component/stop))]
-              ;; TODO: Write more facts!
+              ;; This is more a matter of checking my basic understanding of how the pieces
+              ;; fit together than anything useful.
+              ;; Have to start with baby steps.
               (fact "Setup/teardown works")
+              (fact "Can add a user and query for permissions"
+                    false => truthy)
+              ;; TODO: Write more facts!
               ))

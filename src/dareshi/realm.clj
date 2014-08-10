@@ -11,23 +11,31 @@
             [dareshi.persistence :as db]))
 
 (defn auth-proxy
+  "The JdbcRealm mentions that it might also be possible to override
+getRoleNamesForUser and/or getPermissions."
   [database]
   (proxy [AuthorizingRealm] []
     (doGetAuthenticationInfo
       [^UsernamePasswordToken token]
       ;; TODO: Add caching
-      (let [login-name (.getUsername token)
-            matches (db/query-principal-by-login-name database login-name)]
-        (if (seq matches)
-          (let [credentials (first matches)]
-            ;; Q: Should this be SaltedAuthenticationInfo instead?
-            ;; The latest apache shiro docs say so.
-            ;; Then again, SimpleAuthenticationInfo implements that interface.
-            ;; So hopefully not.
-            (SimpleAuthenticationInfo. (:login-name credentials)
-                                       (:password credentials)
-                                       (.getName this)))
-          (throw (UnknownAccountException.)))))
+      (if-let [login-name (.getUsername token)]
+        (let [matches (db/query-principal-by-login-name database login-name)]
+          (if (seq matches)
+            (let [credentials (first matches)]
+              ;; Q: Should this be SaltedAuthenticationInfo instead?
+              ;; The latest apache shiro docs say so.
+              ;; Then again, SimpleAuthenticationInfo implements that interface.
+              ;; So hopefully not.
+              ;; JdbcRealm calls .toCharArray on the password. That seems a likely
+              ;; source of breakage.
+              (SimpleAuthenticationInfo. (:login-name credentials)
+                                         (:password credentials)
+                                         (.getName this))
+              ;; At this point, JdbcRealm sets the info's salt, if any.
+              ;; Q: Should I?
+              )
+            (throw (UnknownAccountException.))))
+        (throw AccountException. "NULL user account illegal")))
 
     (doGetAuthorizationInfo
       [^PrincipalCollection principals]
@@ -37,7 +45,10 @@
 
       ;; In the original, User and Role are POJOs (beans) that were loaded from the
       ;; database.
-      (let [principals-list (.byType principals (.class "User"))  ; I think this approach is probably wrong
+      ;; I think this approach is probably wrong. And would be, even if I were passing in
+      ;; the User class, like the original, as opposed to just a place-holder string that
+      ;; allowed the compiler to work.
+      (let [principals-list (.byType principals (.class "User"))
             ]
         (if (seq principals-list)
           (let [principal-ids (map (fn [principal]
