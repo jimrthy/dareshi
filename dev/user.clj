@@ -13,3 +13,7 @@
 (defn go
   []
   (println "Don't you mean (dev) ?"))
+
+(defn reset
+  []
+  (println "Yep. You mean (dev)"))

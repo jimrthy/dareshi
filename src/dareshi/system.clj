@@ -51,7 +51,11 @@
          (user-config)))
 
 (defn new-base-system-map
-  "Builds the system map"
+  "Builds the system map.
+The 2nd parameter is something that came from juxt.modular.
+It's really just a record with a promise that get deliver'd
+after the system is started.
+Q: What's it for?"
   [config systemref]
   (let [{:keys []} config]
     (system-map
@@ -64,8 +68,8 @@
   "Which components rely on which others?"
   [system-map]
   {:database {:uri :database-connection-description}
-   :schema {:database :database}
-   :realm [:database]})
+   :schema [:database]
+   :realm [:schema]})
 
 (defn new-production-system
   "Create the production system"
