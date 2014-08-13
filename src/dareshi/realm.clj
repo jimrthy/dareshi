@@ -1,9 +1,12 @@
 (ns dareshi.realm
-  (:import [org.apache.shiro.authc AuthenticationToken
+  (:import [org.apache.shiro.authc
+            AccountException
+            AuthenticationToken
             SimpleAuthenticationInfo
             UnknownAccountException
             UsernamePasswordToken]
-           [org.apache.shiro.authz AuthorizationException
+           [org.apache.shiro.authz
+            AuthorizationException
             SimpleAuthorizationInfo]
            [org.apache.shiro.realm AuthorizingRealm]
            [org.apache.shiro.subject PrincipalCollection])
@@ -35,7 +38,7 @@ getRoleNamesForUser and/or getPermissions."
               ;; Q: Should I?
               )
             (throw (UnknownAccountException.))))
-        (throw AccountException. "NULL user account illegal")))
+        (throw (AccountException. "NULL user account illegal"))))
 
     (doGetAuthorizationInfo
       [^PrincipalCollection principals]
