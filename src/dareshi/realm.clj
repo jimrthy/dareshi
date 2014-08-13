@@ -1,5 +1,7 @@
 (ns dareshi.realm
-  (:import [org.apache.shiro.authc
+  (:import [javax.naming.directory SearchControls]
+           [javax.naming.ldap LdapContext]
+           [org.apache.shiro.authc
             AccountException
             AuthenticationToken
             SimpleAuthenticationInfo
@@ -9,9 +11,14 @@
             AuthorizationException
             SimpleAuthorizationInfo]
            [org.apache.shiro.realm AuthorizingRealm]
+           [org.apache.shiro.realm.ldap JndiLdapRealm
+            LdapContextFactory
+            LdapUtils]
            [org.apache.shiro.subject PrincipalCollection])
   (:require [com.stuartsierra.component :as component]
-            [dareshi.persistence :as db]))
+            [dareshi.persistence :as db]
+            [ribol.core :refer (raise)]
+            [taoensso.timbre :as log]))
 
 (defn auth-proxy
   "The JdbcRealm mentions that it might also be possible to override
@@ -72,5 +79,79 @@ getRoleNamesForUser and/or getPermissions."
     this))
 
 (defn new-realm
-  [{:keys [database]}]
+  [{:keys [database]}]  
   (map->Realm {:database database}))
+
+(defn get-role-names-for-groups
+  "Should map fully-qualified LDAP group names as returned by
+the directory server to role names.
+The example that the ActiveDirectoryRealm gives as the key is
+CN=Group,OU=company,DC=MyDomain,DC=local"
+  [group-names]
+  ;; For that matter, I have some doubts about how this map should
+  ;; get set.
+  ;; It seems like it very definitely lives in the database,
+  ;; but I'm badly fuzzy on AD after that point.
+  (raise [:not-implemented
+          {:reason "I have some doubts about what this looks like"}]))
+
+(defn ldap-member-roles
+  [user-name attr]
+  (when (= "memberOf" (.getID attr))
+    (let [group-names (LdapUtils/getAllAttributeValues attr)]
+      (log/debug "Groups found for user [" user-name "]: " group-names)
+      (get-role-names-for-groups group-names))))
+
+(defn ldap-roles-by-group
+  [user-name user]
+  (log/debug "Retrieving group names for user [" (.getName user) "]")
+  (when-let [attrs (.getAttributes user)]
+    (let [attr-enum (.getAll attrs)]
+      (map (partial ldap-member-roles user-name)
+           attr-enum))))
+
+(defn ldap-proxy
+  "Realm that handles authentication through LDAP, and authorization
+based on LDAP groups (according to permissions associated in database?)
+
+Based strongly on
+stackoverflow.com/questions/12173492/shiro-jndildaprealm-authorization-against-ldap"
+  [database]
+  (proxy [JndiLdapRealm] []
+    (queryforAuthorizationInfo [^PrincipalCollection principals ^LdapContextFactory ctxFactory]
+      (let [user-name (.getAvailablePrincipal this principals)
+            ldap-ctx (.getSystemLdapContext ctxFactory)]
+        (try
+          (.getRoleNamesForUser this user-name ldap-ctx)
+          (finally
+            (LdapUtils/closeContext ldap-ctx)))))
+    (buildAuthorizationInfo [role-names]
+      ;; Q: What's the type hint for Set<String> ?
+      (SimpleAuthorizationInfo. role-names))
+
+    (getRoleNamesForUser
+      [^String user-name ^LdapContext ldap-ctx]
+      (let [search-controls (SearchControls.)
+            search-filter "(&(objectClass=*)(CN={0}))"
+            search-arguments [user-name]]
+        (.setSearchScope search-controls SearchControls/SUBTREE_SCOPE)
+        (let [users (.search ldap-ctx (.searchBase this) search-filter search-arguments search-controls)]
+          ;; users is a javax.naming.NamingEnumeration
+          ;; Q: Can I map over that?
+          (as-> 
+           (map (partial ldap-roles-by-group user-name)
+                users) x
+                (concat x)
+                (filter identity x)
+                (set x)))))))
+
+(defrecord LdapRealm [database auther]
+  component/Lifecycle
+  (start [this]
+    (assoc this :auther (ldap-proxy database)))
+  (stop [this]
+    this))
+
+(defn new-ldap-realm
+  [{:keys [database]}]
+  (map->LdapRealm {:database database}))
