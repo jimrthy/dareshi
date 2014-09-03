@@ -15,7 +15,7 @@ experiment."
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :main ^:skip-aot dareshi.main
   :profiles {:dev {:dependencies [[midje "1.6.3"]
-                                  [org.clojure/tools.namespace "0.2.4"]
+                                  [org.clojure/tools.namespace "0.2.5"]
                                   [org.clojure/java.classpath "0.2.2"]]
                    :source-paths ["dev"]}
              :uberjar {:aot :all}}
