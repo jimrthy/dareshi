@@ -1,4 +1,4 @@
-(ns dareshi.system
+(ns authczar.system
   "Components and their dependency relationships"
   (:refer-clojure :exclude (read))
   (:require
@@ -7,9 +7,9 @@
    [clojure.string :as str]
    [clojure.tools.reader.reader-types :refer (indexing-push-back-reader)]
    [com.stuartsierra.component :as component :refer (system-map system-using)]
-   [dareshi.db.schema :as schema]
-   [dareshi.persistence :as db]
-   [dareshi.realm :as realm]))
+   [authczar.db.schema :as schema]
+   [authczar.persistence :as db]
+   [authczar.realm :as realm]))
 
 (defn ^:private read-file
   [f]

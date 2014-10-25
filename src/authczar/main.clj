@@ -1,5 +1,8 @@
-(ns dareshi.main
-  "Main entry point"
+(ns authczar.main
+  "Main entry point.
+
+Using this as a library seems problematic. But the basic idea
+probably makes sense."
   (:require clojure.pprint)
   (:gen-class))
 
@@ -26,15 +29,15 @@
 
 (defn -main [& args]
   ;; We eval so that we don't AOT anything beyond this class
-  (eval '(do (require 'dareshi.system)
-             (require 'dareshi.main)
+  (eval '(do (require 'authczar.system)
+             (require 'authczar.main)
              (require 'com.stuartsierra.component)
 
              (println "Starting reusable.components")
 
-             (let [systemref (dareshi.main/new-system-wrapper)
+             (let [systemref (authczar.main/new-system-wrapper)
                    system (com.stuartsierra.component/start
-                           (dareshi.system/new-production-system systemref))]
+                           (authczar.system/new-production-system systemref))]
 
                (deliver systemref system)
 

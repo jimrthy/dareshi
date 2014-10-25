@@ -1,4 +1,4 @@
-(ns dareshi.persistence
+(ns authczar.persistence
   (:require [com.stuartsierra.component :as component]
             [datomic.api :as d]
             [taoensso.timbre :as log]))

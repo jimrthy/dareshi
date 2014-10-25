@@ -1,4 +1,4 @@
-(ns dareshi.db.schema
+(ns authczar.db.schema
   (:require [com.stuartsierra.component :as component]
             [datomic.api :as d]
             [datomic-helpers :as d-h]

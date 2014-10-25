@@ -1,8 +1,8 @@
-(ns dareshi.realm-test
+(ns authczar.realm-test
   (:require [clojure.pprint :refer (pprint)]
             [com.stuartsierra.component :as component]
-            [dareshi.realm :as realm]
-            [dareshi.system :as sys])
+            [authczar.realm :as realm]
+            [authczar.system :as sys])
   (:use midje.sweet))
 
 (comment) (let [base-system (sys/new-production-system nil)

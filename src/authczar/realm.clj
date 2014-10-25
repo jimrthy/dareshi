@@ -1,4 +1,4 @@
-(ns dareshi.realm
+(ns authczar.realm
   (:import [javax.naming.directory SearchControls]
            [javax.naming.ldap LdapContext]
            [org.apache.shiro.authc
@@ -16,7 +16,7 @@
             LdapUtils]
            [org.apache.shiro.subject PrincipalCollection])
   (:require [com.stuartsierra.component :as component]
-            [dareshi.persistence :as db]
+            [authczar.persistence :as db]
             [ribol.core :refer (raise)]
             [taoensso.timbre :as log]))
 
