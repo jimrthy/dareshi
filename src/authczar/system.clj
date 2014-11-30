@@ -2,14 +2,22 @@
   "Components and their dependency relationships"
   (:refer-clojure :exclude (read))
   (:require
+   [authczar.db.schema :as schema]
+   [authczar.env :as env]
+   [authczar.persistence :as db]
+   [authczar.realm :as realm]
+   [authczar.remember-me-manager :as remember-me]
    [clojure.java.io :as io]
    [clojure.tools.reader :refer (read)]
    [clojure.string :as str]
    [clojure.tools.reader.reader-types :refer (indexing-push-back-reader)]
-   [com.stuartsierra.component :as component :refer (system-map system-using)]
-   [authczar.db.schema :as schema]
-   [authczar.persistence :as db]
-   [authczar.realm :as realm]))
+   [com.stuartsierra.component :as component :refer (system-map system-using)]))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Schema
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Helpers
 
 (defn ^:private read-file
   [f]
@@ -50,6 +58,9 @@
          (config-from-classpath)
          (user-config)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Public
+
 (defn new-base-system-map
   "Builds the system map.
 The 2nd parameter is something that came from juxt.modular.
@@ -61,15 +72,19 @@ Q: What's it for?"
     (system-map
      :database-connection-description (db/new-connection-description config)
      :database (db/new-persistence config)
-     :realm (realm/new-realm config)
+     :environment (env/ctor)
+     :realms (realm/new-realm config)
+     :remember-me-manager (remember-me/ctor)
      :schema (schema/new-schema config))))
 
 (defn new-base-dependency-map
   "Which components rely on which others?"
   [system-map]
   {:database {:uri :database-connection-description}
-   :schema [:database]
-   :realm [:schema]})
+   :env [:realms :remember-me-manager]
+   :remember-me-manager [:schema]
+   :realm [:schema]
+   :schema [:database]})
 
 (defn new-production-system
   "Create the production system"
