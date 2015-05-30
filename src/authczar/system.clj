@@ -81,9 +81,9 @@ Q: What's it for?"
   "Which components rely on which others?"
   [system-map]
   {:database {:uri :database-connection-description}
-   :env [:realms :remember-me-manager]
+   :environment [:realms :remember-me-manager]
    :remember-me-manager [:schema]
-   :realm [:schema]
+   :realms [:schema]
    :schema [:database]})
 
 (defn new-production-system

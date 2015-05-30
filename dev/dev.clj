@@ -1,18 +1,18 @@
 (ns dev
-  (:require [clojure.java.io :as io]
+  (:require [authczar.persistence :as db]
+            [authczar.system :as sys :refer (config new-base-system-map new-base-dependency-map)]
+            [clojure.java.io :as io]
             [clojure.pprint :refer (pprint simple-dispatch)]
             [clojure.reflect :refer (reflect)]
             [clojure.repl :refer (apropos dir doc find-doc pst source)]
             [clojure.string :as s]
             [clojure.tools.namespace.repl :refer (refresh refresh-all)]
             [com.stuartsierra.component :as component]
-            [authczar.persistence :as db]
-            [authczar.system :as sys :refer (config new-base-system-map new-base-dependency-map)]
             [datomic.api :as d]
-            [datomic-schema-grapher.core :refer (graph-datomic)]
+            #_[datomic-schema-grapher.core :refer (graph-datomic)]
             [dev-components :refer (wrap-schema-validation)]
-            [midje.repl :refer [autotest load-facts]]
-            [midje.sweet :as midje]
+            #_[midje.repl :refer [autotest load-facts]]
+            #_[midje.sweet :as midje]
             [taoensso.timbre :as log]))
 
 (def system nil)
@@ -112,6 +112,6 @@ Q: Do I really want to do this?"
   (stop)
   (refresh :after 'dev/go))
 
-(defn show-schema
-  []
-  (graph-datomic (db/build-uri (:database-connection-description system))))
+(comment (defn show-schema
+           []
+           (graph-datomic (db/build-uri (:database-connection-description system)))))
