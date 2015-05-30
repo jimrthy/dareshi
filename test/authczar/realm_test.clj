@@ -1,22 +1,31 @@
 (ns authczar.realm-test
   (:require [clojure.pprint :refer (pprint)]
+            [clojure.test :refer (are deftest is testing use-fixtures)]
             [com.stuartsierra.component :as component]
             [authczar.realm :as realm]
-            [authczar.system :as sys])
-  (:use midje.sweet))
+            [authczar.system :as sys]))
 
-(let [base-system (sys/new-production-system nil)
-      system (atom (into base-system {:database-connection-description {:protocol "mem"
-                                                                        :address "localhost"
-                                                                        :collection "test-auth"
-                                                                        :port 4335}}))]
-  (with-state-changes [(before :facts (swap! system component/start))
-                       (after :facts (swap! system component/stop))]
-    ;; This is more a matter of checking my basic understanding of how the pieces
-    ;; fit together than anything useful.
-    ;; Have to start with baby steps.
-    (fact "Setup/teardown works")
-    (fact "Can add a user and query for permissions"
-          false => truthy)
-    ;; TODO: Write more facts!
-    ))
+(def system (atom nil))
+
+(defn system-fixture [f]
+  (let [base-system (sys/new-production-system nil)
+        testing-system (into base-system {:database-connection-description {:protocol "mem"
+                                                                            :address "localhost"
+                                                                            :collection (name (gensym))
+                                                                            :port 4335}})]
+    (reset! system (component/start testing-system))
+    (try
+      (f)
+      (finally
+        (component/stop @system)
+        (reset! system nil)))))
+
+(use-fixtures :each system-fixture)
+
+(deftest loading []
+  (testing "Can we start/stop a system?"
+    (is (= 1 1) "Setup/teardown work")))
+
+(deftest user-creation []
+  (testing "I don't think this belongs here"
+    (is (= true false) "If it does, how should it work?")))
