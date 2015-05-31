@@ -1,6 +1,6 @@
 (ns dev
-  (:require [authczar.persistence :as db]
-            [authczar.system :as sys :refer (config new-base-system-map new-base-dependency-map)]
+  (:require [dareshi.persistence :as db]
+            [dareshi.system :as sys :refer (config new-base-system-map new-base-dependency-map)]
             [clojure.java.io :as io]
             [clojure.pprint :refer (pprint simple-dispatch)]
             [clojure.reflect :refer (reflect)]
@@ -9,10 +9,7 @@
             [clojure.tools.namespace.repl :refer (refresh refresh-all)]
             [com.stuartsierra.component :as component]
             [datomic.api :as d]
-            #_[datomic-schema-grapher.core :refer (graph-datomic)]
             [dev-components :refer (wrap-schema-validation)]
-            #_[midje.repl :refer [autotest load-facts]]
-            #_[midje.sweet :as midje]
             [taoensso.timbre :as log]))
 
 (def system nil)

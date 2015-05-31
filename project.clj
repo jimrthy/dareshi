@@ -1,4 +1,4 @@
-(defproject authczar "0.1.0-SNAPSHOT"
+(defproject com.frereth/dareshi "0.1.0-SNAPSHOT"
   :description "I need to stash things like users, roles, and passwords in a database.
 Since I'm trying to use datomic for everything else, this seemed like a reasonable
 experiment."
@@ -12,11 +12,12 @@ experiment."
                  [prismatic/plumbing "0.4.4"]]
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :main ^:skip-aot authczar.main
+  :main ^:skip-aot dareshi.main
   :plugins {}
   :profiles {:dev {:plugins [[org.clojure/tools.namespace "0.2.10"]
                              [org.clojure/java.classpath "0.2.2"]]
                    :source-paths ["dev"]}
+             ;; TODO: I strongly suspect that I don't want to do this
              :uberjar {:aot :all}}
   :repl-options {:init-ns user
                  :welcome (println "Run (dev) to start")}

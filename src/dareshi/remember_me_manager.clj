@@ -1,4 +1,4 @@
-(ns authczar.remember-me-manager
+(ns dareshi.remember-me-manager
   (:require [com.stuartsierra.component :as component]
             [ribol.core :refer (raise)]
             [schema.core :as s]))

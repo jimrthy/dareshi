@@ -1,4 +1,4 @@
-(ns authczar.db.schema
+(ns dareshi.db.schema
   (:require [com.stuartsierra.component :as component]
             [datomic.api :as d]
             [datomic-helpers :as d-h]
@@ -24,7 +24,7 @@
    :db/valueType :db.type/int
    :db/isComponent false
    :db/cardinality :db.cardinality/one
-   :db.install/_attribute :db.part/db}) 
+   :db.install/_attribute :db.part/db})
 
 
 (defn principals

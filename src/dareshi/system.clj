@@ -1,12 +1,12 @@
-(ns authczar.system
+(ns dareshi.system
   "Components and their dependency relationships"
   (:refer-clojure :exclude (read))
   (:require
-   [authczar.db.schema :as schema]
-   [authczar.env :as env]
-   [authczar.persistence :as db]
-   [authczar.realm :as realm]
-   [authczar.remember-me-manager :as remember-me]
+   [dareshi.db.schema :as schema]
+   [dareshi.env :as env]
+   [dareshi.persistence :as db]
+   [dareshi.realm :as realm]
+   [dareshi.remember-me-manager :as remember-me]
    [clojure.java.io :as io]
    [clojure.tools.reader :refer (read)]
    [clojure.string :as str]

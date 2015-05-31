@@ -1,4 +1,4 @@
-(ns authczar.realm
+(ns dareshi.realm
   (:import [javax.naming.directory SearchControls]
            [javax.naming.ldap LdapContext]
            [org.apache.shiro.authc
@@ -16,7 +16,7 @@
             LdapUtils]
            [org.apache.shiro.subject PrincipalCollection])
   (:require [com.stuartsierra.component :as component]
-            [authczar.persistence :as db]
+            [dareshi.persistence :as db]
             [ribol.core :refer (raise)]
             [taoensso.timbre :as log]))
 
@@ -162,7 +162,7 @@ stackoverflow.com/questions/12173492/shiro-jndildaprealm-authorization-against-l
         (let [users (.search ldap-ctx (.searchBase this) search-filter (to-array search-arguments) search-controls)]
           ;; users is a javax.naming.NamingEnumeration
           ;; Q: Can I map over that?
-          (as-> 
+          (as->
            (map (partial ldap-roles-by-group user-name)
                 users) x
                 (concat x)
@@ -173,7 +173,7 @@ stackoverflow.com/questions/12173492/shiro-jndildaprealm-authorization-against-l
 ;;; Public
 
 (defn new-realm
-  [{:keys [database]}]  
+  [{:keys [database]}]
   (map->AuthczarRealm {:database database}))
 
 (defn new-ldap-realm
