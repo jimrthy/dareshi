@@ -1,9 +1,9 @@
-(ns authczar.realm-test
+(ns dareshi.realm-test
   (:require [clojure.pprint :refer (pprint)]
             [clojure.test :refer (are deftest is testing use-fixtures)]
             [com.stuartsierra.component :as component]
-            [authczar.realm :as realm]
-            [authczar.system :as sys]))
+            [dareshi.realm :as realm]
+            [dareshi.system :as sys]))
 
 (def system (atom nil))
 

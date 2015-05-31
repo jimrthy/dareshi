@@ -1,5 +1,5 @@
-(ns authczar.main-test
-  (:require [authczar.main :refer :all]
+(ns dareshi.main-test
+  (:require [dareshi.main :refer :all]
             [clojure.test :refer (are deftest is testing use-fixtures)]))
 
 (deftest load
